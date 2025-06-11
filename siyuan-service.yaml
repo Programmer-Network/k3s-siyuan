@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: siyuan
+  namespace: siyuan
+spec:
+  type: ClusterIP
+  selector:
+    app: siyuan
+  ports:
+    - protocol: TCP
+      port: 6806
+      targetPort: 6806

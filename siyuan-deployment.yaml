@@ -1,0 +1,72 @@
+# siyuan-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: siyuan
+  namespace: siyuan
+  labels:
+    app: siyuan
+    app.kubernetes.io/name: siyuan
+    app.kubernetes.io/part-of: notes
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "6806"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: siyuan
+  template:
+    metadata:
+      labels:
+        app: siyuan
+    spec:
+      containers:
+        - name: siyuan
+          image: b3log/siyuan:latest
+          args:
+            - "--workspace=/siyuan/workspace/"
+            # MODIFICATION: Use variable substitution to get the password from the env var below
+            - "--accessAuthCode=$(SIYUAN_AUTH_CODE)"
+          ports:
+            - containerPort: 6806
+          env:
+            # ADDITION: This block loads the secret value into an environment variable
+            - name: SIYUAN_AUTH_CODE
+              valueFrom:
+                secretKeyRef:
+                  name: siyuan-secret # The name of the Secret object
+                  key: auth-code # The key within that Secret
+            # --- Your other environment variables ---
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "Europe/Berlin"
+          volumeMounts:
+            - name: siyuan-data
+              mountPath: /siyuan/workspace
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 6806
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 6806
+            initialDelaySeconds: 10
+            periodSeconds: 5
+      volumes:
+        - name: siyuan-data
+          persistentVolumeClaim:
+            claimName: siyuan-pvc
