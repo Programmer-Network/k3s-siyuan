@@ -1,6 +1,6 @@
-# siyuan-deployment.yaml
+# siyuan-statefulset.yaml
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: siyuan
   namespace: siyuan
@@ -12,6 +12,7 @@ metadata:
     prometheus.io/scrape: "true"
     prometheus.io/port: "6806"
 spec:
+  serviceName: "siyuan"
   replicas: 1
   selector:
     matchLabels:
@@ -27,18 +28,15 @@ spec:
           command: ["/siyuan/siyuan"]
           args:
             - "--workspace=/siyuan/workspace/"
-            # MODIFICATION: Use variable substitution to get the password from the env var below
             - "--accessAuthCode=$(SIYUAN_AUTH_CODE)"
           ports:
             - containerPort: 6806
           env:
-            # ADDITION: This block loads the secret value into an environment variable
             - name: SIYUAN_AUTH_CODE
               valueFrom:
                 secretKeyRef:
-                  name: siyuan-secret # The name of the Secret object
-                  key: auth-code # The key within that Secret
-            # --- Your other environment variables ---
+                  name: siyuan-secret
+                  key: auth-code
             - name: PUID
               value: "1000"
             - name: PGID
@@ -67,7 +65,12 @@ spec:
               port: 6806
             initialDelaySeconds: 10
             periodSeconds: 5
-      volumes:
-        - name: siyuan-data
-          persistentVolumeClaim:
-            claimName: siyuan-pvc
+  volumeClaimTemplates:
+    - metadata:
+        name: siyuan-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: "longhorn"
+        resources:
+          requests:
+            storage: 10Gi
