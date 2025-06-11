@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: siyuan-project
+  namespace: argocd
+spec:
+  description: Project for the Siyuan note-taking application
+
+  # Allow the project to use your Git repository
+  sourceRepos:
+    - "*" # For simplicity, we'll allow all repos. For production, you'd list your repo URL here.
+
+  # Define the namespaces this project is allowed to deploy to
+  destinations:
+    - namespace: siyuan
+      server: https://kubernetes.default.svc
+    - namespace: kube-system
+      server: https://kubernetes.default.svc
+
+  # Allow this project to create cluster-scoped resources (specifically, the 'siyuan' Namespace)
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+
+  # Allow this project to create specific kinds of resources within the allowed namespaces
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*" # For simplicity, we allow all kinds. For production, you would list them (Deployment, Service, Ingress, etc.)
