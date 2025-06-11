@@ -6,7 +6,7 @@ metadata:
 spec:
   secretName: notes-programmer-network-tls
   issuerRef:
-    name: letsencrypt-prod
+    name: letsencrypt-dns01
     kind: ClusterIssuer
   dnsNames:
     - notes.programmer.network
