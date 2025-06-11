@@ -25,7 +25,7 @@ spec:
       containers:
         - name: siyuan
           image: b3log/siyuan:latest
-          command: ["/siyuan/siyuan"]
+          command: ["/opt/siyuan/kernel"]
           args:
             - "--workspace=/siyuan/workspace/"
             - "--accessAuthCode=$(SIYUAN_AUTH_CODE)"
