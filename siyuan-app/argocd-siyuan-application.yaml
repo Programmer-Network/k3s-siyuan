@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: siyuan
+  namespace: argocd
+spec:
+  project: siyuan-project
+  source:
+    repoURL: https://github.com/Programmer-Network/k3s-siyuan
+    targetRevision: HEAD
+    path: k3s-siyuan/siyuan-app
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: siyuan
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
