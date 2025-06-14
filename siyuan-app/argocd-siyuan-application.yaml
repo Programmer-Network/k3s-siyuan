@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/Programmer-Network/k3s-siyuan
     targetRevision: HEAD
-    path: k3s-siyuan/siyuan-app
+    path: siyuan-app
   destination:
     server: https://kubernetes.default.svc
     namespace: siyuan
